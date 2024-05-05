@@ -24,4 +24,11 @@ std::string carray_to_string(dtype* arr, size_t nof_elems) {
 	tmp_sstream << "}";
 	return tmp_sstream.str();
 }
+
+float rand_float(float min = 0.0f, float max = 1.0f, int granularity = 100) {
+	int rand_int_num = std::rand() % granularity;
+	float rand_unit_float = (1.0f * rand_int_num) / (1.0f * granularity);
+	float rand_float = rand_unit_float * (max - min) + min;
+	return rand_float;
+}
 #endif

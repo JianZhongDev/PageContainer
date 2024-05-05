@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Tests\Tests.cpp" />
+    <ClCompile Include="Tests\Demo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Headers\DemoHelper.hpp" />
+    <ClInclude Include="Headers\PageContainer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

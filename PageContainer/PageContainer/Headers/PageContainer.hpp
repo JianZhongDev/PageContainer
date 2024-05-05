@@ -29,11 +29,11 @@ namespace Container{
 		size_t* data_size_p = nullptr;
 
 		// assign data pointers insider buffer
-		void assign_pointers() {
+		errflag_t assign_pointers() {
 			if (this->buffer_p != nullptr) {
 				this->buffer_size_p = (size_t*)this->buffer_p;
 				this->data_size_p = ((size_t*)this->buffer_p) + 1;
-				this->data_p = (dtype*)(((size_t*)this_buffer_p) + 2);
+				this->data_p = (dtype*)(((size_t*)this->buffer_p) + 2);
 				return SUCCESS;
 			}
 			return ERR_FAILED;
@@ -45,7 +45,7 @@ namespace Container{
 			if (this->buffer_p == nullptr) {
 				// allocate buffer
 				this->buffer_p = malloc(buffer_size);
-				if (this_buffer_p == nullptr) return ERR_MEMERR;
+				if (this->buffer_p == nullptr) return ERR_MEMERR;
 				memset(this->buffer_p, 0, buffer_size);
 				// assign pointers
 				err_flag = this->assign_pointers();
@@ -61,13 +61,14 @@ namespace Container{
 			if (this->buffer_p != nullptr) {
 				free(this->buffer_p);
 			}
+			return SUCCESS;
 		}
 
 	public:
 		// constructor from existing buffer
 		PageContainer(void* input_buffer_p, bool new_buffer = true) {
 			// TODO: throw exceptions in the contructor when function failed
-			size_t buffer_size = *((size_t*)input_bufer_p);
+			size_t buffer_size = *((size_t*)input_buffer_p);
 			if (new_buffer) {
 				this->init_buffer(buffer_size);
 				memcpy(this->buffer_p, input_buffer_p, buffer_size);
@@ -124,7 +125,7 @@ namespace Container{
 			size_t capacity = 0;
 			
 			err_flag = this->get_capacity(&capacity);
-			if (err_flag != SUCCESS) return errflag;
+			if (err_flag != SUCCESS) return err_flag;
 
 			if (data_size > capacity) {
 				return ERR_FAILED;
