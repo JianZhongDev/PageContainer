@@ -27,6 +27,7 @@ namespace Container{
 		size_t* buffer_size_p = nullptr;
 		dtype* data_p = nullptr;
 		size_t* data_size_p = nullptr;
+		bool allocated_buffer = false;
 
 		// assign data pointers insider buffer
 		errflag_t assign_pointers() {
@@ -53,13 +54,16 @@ namespace Container{
 				*(this->buffer_size_p) = buffer_size;
 				*(this->data_size_p) = 0;
 			}
+			this->allocated_buffer = true;
 			return err_flag;
 		}
 
 		// free allocated buffer
 		errflag_t free_buffer() {
-			if (this->buffer_p != nullptr) {
-				free(this->buffer_p);
+			if (this->allocated_buffer) { // free buffer only when object allocated the buffer.
+				if (this->buffer_p != nullptr) {
+					free(this->buffer_p);
+				}
 			}
 			return SUCCESS;
 		}
@@ -68,24 +72,26 @@ namespace Container{
 		// constructor from existing buffer
 		PageContainer(void* input_buffer_p, bool new_buffer = true) {
 			// TODO: throw exceptions in the contructor when function failed
+			errflag_t errflag = ERR_NULL;
 			size_t buffer_size = *((size_t*)input_buffer_p);
 			if (new_buffer) {
-				this->init_buffer(buffer_size);
+				errflag = this->init_buffer(buffer_size);
 				memcpy(this->buffer_p, input_buffer_p, buffer_size);
 			}
 			else {
 				this->buffer_p = input_buffer_p;
-				this->assign_pointers();
+				errflag = this->assign_pointers();
 			}
 		}
 
 		// constructor by giving max data size
 		PageContainer(size_t capacity, size_t page_size) {
 			// TODO: throw exceptions in the contructor when function failed
+			errflag_t errflag = ERR_NULL;
 			size_t nof_pages = (capacity + 2) / page_size;
 			if ((capacity + 2) % page_size > 0) nof_pages += 1;
 			size_t buffer_size = nof_pages * page_size;
-			this->init_buffer(buffer_size);
+			errflag = this->init_buffer(buffer_size);
 		}
 
 		// destuctor frees memory
