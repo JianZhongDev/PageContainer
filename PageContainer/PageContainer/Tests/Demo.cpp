@@ -57,7 +57,8 @@ void main() {
 	memcpy(write_data_p, test_array, data_size_to_write);
 	write_container.set_data_size(data_size_to_write);
 
-	// write data to file (by passing system buffer)
+	// write data to file (bypassing system buffer)
+	// open file
 	file_handle = CreateFileW(
 		file_path.c_str(),
 		GENERIC_WRITE | GENERIC_READ,
@@ -75,12 +76,15 @@ void main() {
 	size_t write_buffer_size = 0;
 	write_container.get_buffer(&write_buffer_p, &write_buffer_size);
 
+	// write data
 	error_flag = WriteFile(file_handle, write_buffer_p, write_buffer_size, NULL, NULL);
 	d_error = GetLastError();
 	if (error_flag == FALSE && d_error != ERROR_IO_PENDING) {
-		std::cout << "ERR:\t error in write file, error code = %u\n" << d_error << std::endl;
+		std::cout << "ERR:\t error in write file, error code = " << d_error << std::endl;
 		return;
 	}
+
+	// close file
 	CloseHandle(file_handle);
 	file_handle = INVALID_HANDLE_VALUE;
 
@@ -88,14 +92,12 @@ void main() {
 	std::wcout << file_path;
 	std::cout << std::endl;
 
-	// create container to read data
-	Container::PageContainer<float> read_container(data_size, page_size);
+	// read data from file
 	void* read_buffer_p = nullptr;
 	size_t read_buffer_size = 0;
-	read_container.get_buffer(&read_buffer_p, &read_buffer_size);
 	DWORD bytes_read = 0;
 
-	// read data from file
+	// open file
 	file_handle = CreateFileW(
 		file_path.c_str(),
 		GENERIC_READ,
@@ -108,12 +110,35 @@ void main() {
 		std::cout << "ERR:\t failed to create file." << std::endl;
 		return;
 	}
+	// get buffer size
+	error_flag = ReadFile(file_handle, &read_buffer_size, sizeof(size_t), &bytes_read, NULL);
+	d_error = GetLastError();
+	if (error_flag == FALSE && d_error != ERROR_IO_PENDING) {
+		std::cout << "ERR:\t error in read file, error code = " << d_error << std::endl;
+		return;
+	}
+
+	std::cout << "read_buffer_size = " << read_buffer_size << std::endl;
+	Container::PageContainer<float> read_container(read_buffer_size);
+	read_container.get_buffer(&read_buffer_p, &read_buffer_size);
+
+	// set file pointer to start of the buffer 
+	SetFilePointer(file_handle, 0, NULL, FILE_BEGIN);
+	d_error = GetLastError();
+	if (d_error != 0) {
+		std::cout << "ERR:\t error set file pointer, error code = " << d_error << std::endl;
+		return;
+	}
+
+	// load file from the buffer 
 	error_flag = ReadFile(file_handle, read_buffer_p, read_buffer_size, &bytes_read, NULL);
 	d_error = GetLastError();
 	if (error_flag == FALSE && d_error != ERROR_IO_PENDING) {
-		std::cout << "ERR:\t error in read file, error code = %u\n" << d_error << std::endl;
+		std::cout << "ERR:\t error in read file, error code = " << d_error << std::endl;
 		return;
 	}
+
+	// close file
 	CloseHandle(file_handle);
 	file_handle = INVALID_HANDLE_VALUE;
 

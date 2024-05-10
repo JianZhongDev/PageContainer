@@ -11,6 +11,7 @@
 
 #include<iostream>
 #include<stdlib.h>
+#include<stdexcept>
 
 namespace Container{
 	typedef int errflag_t;
@@ -71,7 +72,6 @@ namespace Container{
 	public:
 		// constructor from existing buffer
 		PageContainer(void* input_buffer_p, bool new_buffer = true) {
-			// TODO: throw exceptions in the contructor when function failed
 			errflag_t errflag = ERR_NULL;
 			size_t buffer_size = *((size_t*)input_buffer_p);
 			if (new_buffer) {
@@ -82,16 +82,33 @@ namespace Container{
 				this->buffer_p = input_buffer_p;
 				errflag = this->assign_pointers();
 			}
+			// throw error when failed
+			if (errflag != SUCCESS) {
+				throw std::runtime_error("PageContainer failed to init. Error flag = " + std::to_string(errflag));
+			}
 		}
 
 		// constructor by giving max data size
 		PageContainer(size_t capacity, size_t page_size) {
-			// TODO: throw exceptions in the contructor when function failed
 			errflag_t errflag = ERR_NULL;
 			size_t nof_pages = (capacity + 2) / page_size;
 			if ((capacity + 2) % page_size > 0) nof_pages += 1;
 			size_t buffer_size = nof_pages * page_size;
 			errflag = this->init_buffer(buffer_size);
+			// throw error when failed
+			if (errflag != SUCCESS) {
+				throw std::runtime_error("PageContainer failed to init. Error flag = " + std::to_string(errflag));
+			}
+		}
+
+		// constructor by giving buffer size
+		PageContainer(size_t buffer_size) {
+			errflag_t errflag = ERR_NULL;
+			errflag = this->init_buffer(buffer_size);
+			// throw error when failed
+			if (errflag != SUCCESS) {
+				throw std::runtime_error("PageContainer failed to init. Error flag = " + std::to_string(errflag));
+			}
 		}
 
 		// destuctor frees memory
