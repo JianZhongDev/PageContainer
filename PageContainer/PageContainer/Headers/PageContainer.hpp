@@ -91,8 +91,8 @@ namespace Container{
 		// constructor by giving max data size
 		PageContainer(size_t capacity, size_t page_size) {
 			errflag_t errflag = ERR_NULL;
-			size_t nof_pages = (capacity + 2) / page_size;
-			if ((capacity + 2) % page_size > 0) nof_pages += 1;
+			size_t nof_pages = (capacity + 2 * sizeof(size_t)) / page_size;
+			if ((capacity + 2 * sizeof(size_t)) % page_size > 0) nof_pages += 1;
 			size_t buffer_size = nof_pages * page_size;
 			errflag = this->init_buffer(buffer_size);
 			// throw error when failed

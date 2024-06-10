@@ -20,7 +20,7 @@
 void main() {
 	std::wstring file_path = L"test_file.bin";
 	HANDLE file_handle = INVALID_HANDLE_VALUE;
-	size_t page_size = 4 * 1024; // 4KB page size
+	size_t page_size = 4 * 1024; // initial 4KB page size
 	Container::errflag_t errflag = Container::ERR_NULL;
 	DWORD error_flag = NULL;
 	DWORD d_error = NULL;
@@ -130,7 +130,7 @@ void main() {
 		return;
 	}
 
-	// load file from the buffer 
+	// load buffer from the file
 	error_flag = ReadFile(file_handle, read_buffer_p, read_buffer_size, &bytes_read, NULL);
 	d_error = GetLastError();
 	if (error_flag == FALSE && d_error != ERROR_IO_PENDING) {
